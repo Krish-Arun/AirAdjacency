@@ -1,14 +1,15 @@
-/*
- * graph.c
- * Implementation of airline route management system functions
- */
+// can i remove (and replace where needed) copy_string?
+// why are all funcs defined with static? can that be removed?
+// why is calloc used in line 172 for decl of character array visited?
+// i wanna remove the printed stderrors. this aint that serious, its a small project just for demo
+// another comment on line 88
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "graph.h"
 
-static char *copy_string(const char *s) {
+static char *copy_string(const char *s) {  //can this be removed?
     if (s == NULL) return NULL;
     char *t = malloc(strlen(s) + 1);
     if (t == NULL) {
@@ -30,7 +31,7 @@ static int find_city_index(Graph *g, int cityId) {
 
 static int city_has_neighbor(City *c, int destId) {
     for (int i = 0; i < c->neighborCount; ++i) {
-        if (c->neighbors[i] == destId) {
+        if (c->neighbors[i] == destId) { //run through neighbour (destination array) to see if required one is there
             return 1;
         }
     }
@@ -63,7 +64,6 @@ static void ensure_neighbor_capacity(City *c) {
     }
 }
 
-/* Initialize an empty graph */
 void init_graph(Graph *g) {
     if (g == NULL) return;
     g->cities = NULL;
@@ -71,26 +71,23 @@ void init_graph(Graph *g) {
     g->cityCap = 0;
 }
 
-/* Free all memory associated with the graph */
 void free_graph(Graph *g) {
     if (g == NULL) return;
     
-    for (int i = 0; i < g->cityCount; ++i) {
+    for (int i = 0; i < g->cityCount; ++i) { //freeing all allocated mem of every city
         free(g->cities[i].name);
         free(g->cities[i].neighbors);
     }
-    free(g->cities);
+    free(g->cities); //finally freeing the cities array location itself
     g->cities = NULL;
     g->cityCount = 0;
     g->cityCap = 0;
 }
 
-/* Add a new city to the graph */
 void add_city(Graph *g, int cityId, const char *name) {
-    if (g == NULL || name == NULL) return;
+    if (g == NULL || name == NULL) return; //can i remove stuff like this? cause we arent gonna change it during implementation
     
-    // Check if city already exists
-    if (find_city_index(g, cityId) != -1) {
+    if (find_city_index(g, cityId) != -1) { //checks for non empty 'id', could just check if city node is null or not
         printf("City with ID %d already exists\n", cityId);
         return;
     }
@@ -104,12 +101,11 @@ void add_city(Graph *g, int cityId, const char *name) {
     c->neighborCap = 0;
 }
 
-/* Add a unidirectional route from one city to another */
 void add_route(Graph *g, int from, int to) {
     if (g == NULL) return;
     
-    int ai = find_city_index(g, from);
-    int bi = find_city_index(g, to);
+    int ai = find_city_index(g, from); //from city
+    int bi = find_city_index(g, to); //to city
     
     if (ai == -1) {
         printf("Source city %d not found\n", from);
@@ -124,18 +120,17 @@ void add_route(Graph *g, int from, int to) {
         return;
     }
     
-    City *c = &g->cities[ai];
+    City *c = &g->cities[ai]; //created a temp city for checking
     if (city_has_neighbor(c, to)) {
         printf("Route %d -> %d already exists\n", from, to);
         return;
     }
     
     ensure_neighbor_capacity(c);
-    c->neighbors[c->neighborCount++] = to;
+    c->neighbors[c->neighborCount++] = to; //appended new city to neighbour
     printf("Added route %d -> %d\n", from, to);
 }
 
-/* Remove a unidirectional route between two cities */
 void remove_route(Graph *g, int from, int to) {
     if (g == NULL) return;
     
@@ -148,8 +143,7 @@ void remove_route(Graph *g, int from, int to) {
     City *c = &g->cities[ai];
     for (int i = 0; i < c->neighborCount; ++i) {
         if (c->neighbors[i] == to) {
-            // Shift remaining neighbors
-            for (int j = i; j + 1 < c->neighborCount; ++j) {
+            for (int j = i; j + 1 < c->neighborCount; ++j) { // we must shift back the remaning cities in the neighbour arr
                 c->neighbors[j] = c->neighbors[j + 1];
             }
             c->neighborCount--;
@@ -160,8 +154,7 @@ void remove_route(Graph *g, int from, int to) {
     printf("Route %d -> %d does not exist\n", from, to);
 }
 
-/* Check if there is a path from one city to another using BFS */
-int can_reach(Graph *g, int from, int to) {
+int can_reach(Graph *g, int from, int to) { //using simple bfs here
     if (g == NULL) return 0;
     
     int ai = find_city_index(g, from);
@@ -171,7 +164,6 @@ int can_reach(Graph *g, int from, int to) {
         return 0;
     }
     
-    // If source and destination are the same
     if (from == to) {
         return 1;
     }
@@ -215,7 +207,6 @@ int can_reach(Graph *g, int from, int to) {
     return 0;
 }
 
-/* Print all cities in the graph */
 void print_cities(Graph *g) {
     if (g == NULL) return;
     
@@ -230,7 +221,6 @@ void print_cities(Graph *g) {
     }
 }
 
-/* Print the complete route map (adjacency list representation) */
 void print_graph(Graph *g) {
     if (g == NULL) return;
     
@@ -244,7 +234,7 @@ void print_graph(Graph *g) {
         City *c = &g->cities[i];
         printf("%d (%s) ->", c->id, c->name);
         
-        if (c->neighborCount == 0) {
+        if (c->neighborCount == 0) { // we may skip edge cases like this to simplify code
             printf(" [no outgoing routes]");
         } else {
             for (int j = 0; j < c->neighborCount; ++j) {

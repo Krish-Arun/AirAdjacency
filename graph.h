@@ -1,9 +1,3 @@
-/*
- * graph.h
- * Header file for airline route management system
- * Contains structure definitions and function declarations
- */
-
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -13,7 +7,7 @@ typedef struct {
     char *name;                // Name of the city (dynamically allocated)
     int *neighbors;            // Array of neighbor city IDs (adjacency list)
     int neighborCount;         // Current number of neighbors
-    int neighborCap;           // Capacity of neighbors array
+    int neighborCap;           // size of neighbors array
 } City;
 
 /* Graph structure representing the airline route network */
@@ -42,4 +36,4 @@ void print_graph(Graph *g);
 /* Dijkstra's algorithm: returns shortest path length, fills path[] with city IDs, returns pathLen */
 int shortest_route(Graph *g, int from, int to, int *path, int maxPathLen);
 
-#endif /* GRAPH_H */
+#endif

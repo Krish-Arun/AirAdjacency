@@ -1,13 +1,8 @@
-/*
- * main.c
- * Main driver program for airline route management system
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "graph.h"
 
-/* Display the menu options */
+//menu
 void show_menu(void) {
     printf("\n");
     printf("========================================\n");
@@ -226,7 +221,7 @@ int main(void) {
         }
     }
     
-    // Clean up and free all allocated memory
+    //free memory
     free_graph(&g);
     
     return 0;
