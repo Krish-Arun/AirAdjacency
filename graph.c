@@ -1,26 +1,10 @@
-// can i remove (and replace where needed) copy_string?
-// why are all funcs defined with static? can that be removed?
-// why is calloc used in line 172 for decl of character array visited?
-// i wanna remove the printed stderrors. this aint that serious, its a small project just for demo
-// another comment on line 88
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "graph.h"
 
-static char *copy_string(const char *s) {  //can this be removed?
-    if (s == NULL) return NULL;
-    char *t = malloc(strlen(s) + 1);
-    if (t == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(t, s);
-    return t;
-}
-
-static int find_city_index(Graph *g, int cityId) {
+int find_city_index(Graph *g, int cityId) {
     for (int i = 0; i < g->cityCount; ++i) {
         if (g->cities[i].id == cityId) {
             return i;
@@ -29,7 +13,7 @@ static int find_city_index(Graph *g, int cityId) {
     return -1;
 }
 
-static int city_has_neighbor(City *c, int destId) {
+int city_has_neighbor(City *c, int destId) {
     for (int i = 0; i < c->neighborCount; ++i) {
         if (c->neighbors[i] == destId) { //run through neighbour (destination array) to see if required one is there
             return 1;
@@ -38,27 +22,21 @@ static int city_has_neighbor(City *c, int destId) {
     return 0;
 }
 
-static void ensure_city_capacity(Graph *g) {
+void ensure_city_capacity(Graph *g) {
     if (g->cityCount >= g->cityCap) {
         int newCap = g->cityCap ? g->cityCap * 2 : 4;
         City *temp = realloc(g->cities, newCap * sizeof(City));
-        if (temp == NULL) {
-            fprintf(stderr, "Memory allocation failed\n");
-            exit(EXIT_FAILURE);
-        }
+        if (temp == NULL) return
         g->cities = temp;
         g->cityCap = newCap;
     }
 }
 
-static void ensure_neighbor_capacity(City *c) {
+void ensure_neighbor_capacity(City *c) {
     if (c->neighborCount >= c->neighborCap) {
         int newCap = c->neighborCap ? c->neighborCap * 2 : 4;
         int *temp = realloc(c->neighbors, newCap * sizeof(int));
-        if (temp == NULL) {
-            fprintf(stderr, "Memory allocation failed\n");
-            exit(EXIT_FAILURE);
-        }
+        if (temp == NULL) return
         c->neighbors = temp;
         c->neighborCap = newCap;
     }
@@ -85,7 +63,7 @@ void free_graph(Graph *g) {
 }
 
 void add_city(Graph *g, int cityId, const char *name) {
-    if (g == NULL || name == NULL) return; //can i remove stuff like this? cause we arent gonna change it during implementation
+    if (g == NULL || name == NULL) return;
     
     if (find_city_index(g, cityId) != -1) { //checks for non empty 'id', could just check if city node is null or not
         printf("City with ID %d already exists\n", cityId);
@@ -95,7 +73,9 @@ void add_city(Graph *g, int cityId, const char *name) {
     ensure_city_capacity(g);
     City *c = &g->cities[g->cityCount++];
     c->id = cityId;
-    c->name = copy_string(name);
+    c->name = malloc(strlen(name) + 1);
+    if (c->name) strcpy(c->name, name);
+
     c->neighbors = NULL;
     c->neighborCount = 0;
     c->neighborCap = 0;
@@ -169,13 +149,10 @@ int can_reach(Graph *g, int from, int to) { //using simple bfs here
     }
     
     int n = g->cityCount;
-    char *visited = calloc(n, sizeof(char));
+    char *visited = calloc(n, sizeof(char)); // we need to initialize to 0
     int *queue = malloc(n * sizeof(int));
     
     if (visited == NULL || queue == NULL) {
-        free(visited);
-        free(queue);
-        fprintf(stderr, "Memory allocation failed\n");
         return 0;
     }
     
@@ -234,7 +211,7 @@ void print_graph(Graph *g) {
         City *c = &g->cities[i];
         printf("%d (%s) ->", c->id, c->name);
         
-        if (c->neighborCount == 0) { // we may skip edge cases like this to simplify code
+        if (c->neighborCount == 0) { // skippable tbh
             printf(" [no outgoing routes]");
         } else {
             for (int j = 0; j < c->neighborCount; ++j) {
