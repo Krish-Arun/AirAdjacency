@@ -26,7 +26,7 @@ void ensure_city_capacity(Graph *g) {
     if (g->cityCount >= g->cityCap) {
         int newCap = g->cityCap ? g->cityCap * 2 : 4;
         City *temp = realloc(g->cities, newCap * sizeof(City));
-        if (temp == NULL) return
+        if (temp == NULL) return;
         g->cities = temp;
         g->cityCap = newCap;
     }
@@ -36,7 +36,7 @@ void ensure_neighbor_capacity(City *c) {
     if (c->neighborCount >= c->neighborCap) {
         int newCap = c->neighborCap ? c->neighborCap * 2 : 4;
         int *temp = realloc(c->neighbors, newCap * sizeof(int));
-        if (temp == NULL) return
+        if (temp == NULL) return;
         c->neighbors = temp;
         c->neighborCap = newCap;
     }
