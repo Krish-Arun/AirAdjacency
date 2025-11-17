@@ -1,39 +1,36 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-/* City structure representing a node in the graph */
+#define MAX_DISTANCE 999999
+
 typedef struct {
-    int id;                    // Unique identifier for the city
-    char *name;                // Name of the city (dynamically allocated)
-    int *neighbors;            // Array of neighbor city IDs (adjacency list)
-    int neighborCount;         // Current number of neighbors
-    int neighborCap;           // size of neighbors array
+    int destId;
+    int distance;
+} Edge;
+
+typedef struct {
+    int id;
+    char *name;
+    Edge *edges;
+    int edgeCount;
+    int edgeCap;
 } City;
 
-/* Graph structure representing the airline route network */
 typedef struct {
-    City *cities;              // Dynamic array of cities
-    int cityCount;             // Current number of cities
-    int cityCap;               // Capacity of cities array
+    City *cities;
+    int cityCount;
+    int cityCap;
 } Graph;
 
-/* Graph initialization and cleanup */
 void init_graph(Graph *g);
 void free_graph(Graph *g);
-
-/* City and route management */
 void add_city(Graph *g, int cityId, const char *name);
-void add_route(Graph *g, int from, int to);
+void add_route(Graph *g, int from, int to, int distance);
 void remove_route(Graph *g, int from, int to);
-
-/* Query operations */
 int can_reach(Graph *g, int from, int to);
-
-/* Display operations */
 void print_cities(Graph *g);
 void print_graph(Graph *g);
-
-/* Dijkstra's algorithm: returns shortest path length, fills path[] with city IDs, returns pathLen */
-int shortest_route(Graph *g, int from, int to, int *path, int maxPathLen);
+int dijkstra_shortest_path(Graph *g, int source, int dest, int *path, int *pathLength);
+int find_alternate_route(Graph *g, int source, int dest, int *path, int *pathLength, int *shortestPath, int shortestLength);
 
 #endif
